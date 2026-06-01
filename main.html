@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SquishCase — By You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f1ea;
+    --panel:#ffffff;
+    --ink:#1f1b2e;
+    --ink-soft:#6b6478;
+    --line:#e7e2d8;
+    --accent:#ff5c7a;
+    --accent-2:#7c5cff;
+    --radius:22px;
+    --shadow:0 10px 40px rgba(31,27,46,.10);
+    font-family:"Hanken Grotesk",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #ffe6ef 0%, transparent 55%),
+      radial-gradient(900px 700px at -5% 110%, #e7e0ff 0%, transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px 70px;}
+
+  /* ---------- top bar ---------- */
+  header{
+    display:flex;align-items:flex-start;justify-content:space-between;
+    padding:26px 4px 14px;gap:18px;flex-wrap:wrap;
+  }
+  .title h1{
+    font-family:"Fredoka",sans-serif;font-weight:600;font-size:30px;letter-spacing:-.3px;
+    line-height:1.05;
+  }
+  .title h1 b{color:var(--accent);font-weight:700;}
+  .price{font-family:"Fredoka";font-weight:600;font-size:24px;margin-top:2px;}
+  .price .strike{font-size:15px;color:var(--ink-soft);text-decoration:line-through;margin-left:8px;font-weight:500;}
+  .top-actions{display:flex;gap:12px;}
+  .pill{
+    border:1.5px solid var(--ink);background:var(--panel);
+    border-radius:999px;padding:12px 22px;font-weight:600;font-size:15px;
+    cursor:pointer;display:flex;align-items:center;gap:8px;transition:.18s;
+    font-family:"Hanken Grotesk";
+  }
+  .pill:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+  .pill.solid{background:var(--ink);color:#fff;}
+  .pill.solid:hover{background:#000;}
+
+  /* ---------- stage ---------- */
+  .stage{
+    position:relative;border-radius:34px;
+    background:
+      radial-gradient(700px 480px at 50% 30%, #ffffff 0%, #f8f5ef 70%);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.04), var(--shadow);
+    padding:34px 20px 26px;overflow:hidden;
+  }
+  .stage::before{
+    content:"";position:absolute;inset:0;
+    background-image:radial-gradient(rgba(124,92,255,.05) 1px, transparent 1px);
+    background-size:22px 22px;opacity:.7;
+  }
+  .badge{
+    position:absolute;top:22px;left:24px;z-index:3;
+    font-family:"Fredoka";font-weight:600;font-size:13px;letter-spacing:.4px;
+    background:#fff;border:1.5px solid var(--line);border-radius:999px;
+    padding:7px 14px;display:flex;align-items:center;gap:7px;color:var(--ink-soft);
+  }
+  .badge .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .preview{
+    position:relative;z-index:2;display:flex;justify-content:center;align-items:center;
+    min-height:430px;
+  }
+  #caseSvg{
+    width:280px;max-width:62vw;height:auto;cursor:pointer;
+    filter:drop-shadow(0 26px 30px rgba(31,27,46,.22));
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+    animation:floaty 5s ease-in-out infinite;
+  }
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  #caseSvg.squish{animation:squishpop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes squishpop{0%{transform:scale(1)}35%{transform:scale(1.06,.92)}70%{transform:scale(.97,1.04)}100%{transform:scale(1)}}
+  .view-label{
+    text-align:center;position:relative;z-index:2;margin-top:6px;
+    font-family:"Fredoka";font-weight:500;color:var(--ink-soft);font-size:14px;
+  }
+  .view-label b{color:var(--ink);}
+
+  /* ---------- configurator ---------- */
+  .config{
+    margin-top:26px;background:var(--panel);border-radius:30px;
+    box-shadow:var(--shadow);padding:8px 8px 30px;
+  }
+  .stepper{
+    display:flex;align-items:center;justify-content:center;gap:22px;
+    padding:22px 16px 8px;
+  }
+  .arrow{
+    width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line);
+    background:#fff;cursor:pointer;display:grid;place-items:center;transition:.16s;font-size:18px;color:var(--ink);
+  }
+  .arrow:hover{border-color:var(--ink);transform:scale(1.06);}
+  .step-name{text-align:center;min-width:230px;}
+  .step-name .lbl{font-family:"Fredoka";font-weight:600;font-size:21px;}
+  .step-name .count{color:var(--ink-soft);font-size:14px;margin-left:6px;font-weight:500;}
+  .step-name .hint{font-size:13px;color:var(--ink-soft);margin-top:2px;}
+
+  .panel{display:none;padding:14px 28px 0;animation:fade .35s ease;}
+  .panel.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* texture cards */
+  .tex-grid{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .tex-card{
+    width:120px;border:2px solid var(--line);border-radius:20px;background:#fbfaf7;
+    cursor:pointer;padding:10px;text-align:center;transition:.16s;
+  }
+  .tex-card:hover{transform:translateY(-3px);border-color:#cfc8e6;}
+  .tex-card.sel{border-color:var(--accent-2);box-shadow:0 6px 18px rgba(124,92,255,.18);}
+  .tex-card svg{width:100%;height:74px;display:block;border-radius:12px;background:#fff;}
+  .tex-card span{display:block;margin-top:8px;font-weight:600;font-size:13.5px;font-family:"Fredoka";}
+
+  /* swatches */
+  .swatch-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;max-width:760px;margin:0 auto;}
+  .swatch{
+    width:46px;height:46px;border-radius:50%;cursor:pointer;position:relative;
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.6), 0 3px 8px rgba(0,0,0,.12);
+    transition:.16s;
+  }
+  .swatch:hover{transform:scale(1.12);}
+  .swatch.sel{outline:2.5px solid var(--ink);outline-offset:3px;}
+  .swatch.sel::after{content:"";}
+  .readout{text-align:center;margin-top:18px;font-family:"Fredoka";font-weight:500;color:var(--ink);font-size:15px;}
+
+  /* segmented (finish / model) */
+  .seg{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .seg button{
+    border:2px solid var(--line);background:#fff;border-radius:999px;padding:13px 26px;
+    font-weight:600;font-size:15px;cursor:pointer;transition:.16s;font-family:"Hanken Grotesk";color:var(--ink);
+    display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.1;
+  }
+  .seg button small{font-weight:500;font-size:12px;color:var(--ink-soft);}
+  .seg button:hover{border-color:#cfc8e6;}
+  .seg button.sel{border-color:var(--accent);background:#fff0f4;}
+
+  /* footer summary */
+  .summary{
+    margin-top:26px;display:flex;align-items:center;justify-content:space-between;gap:18px;
+    background:var(--panel);border-radius:24px;box-shadow:var(--shadow);padding:18px 24px;flex-wrap:wrap;
+  }
+  .summary .recap{font-size:14.5px;color:var(--ink-soft);line-height:1.5;}
+  .summary .recap b{color:var(--ink);font-family:"Fredoka";font-weight:600;}
+  .bag{
+    background:var(--accent);color:#fff;border:none;border-radius:999px;padding:16px 34px;
+    font-family:"Fredoka";font-weight:600;font-size:17px;cursor:pointer;transition:.18s;
+    box-shadow:0 8px 22px rgba(255,92,122,.4);
+  }
+  .bag:hover{transform:translateY(-2px);background:#ff4569;}
+
+  /* ---------- try button ---------- */
+  .try-wrap{text-align:center;margin-top:26px;}
+  .try-btn{
+    background:var(--accent-2);color:#fff;border:none;border-radius:999px;
+    padding:16px 34px;font-family:"Fredoka";font-weight:600;font-size:17px;cursor:pointer;
+    box-shadow:0 8px 22px rgba(124,92,255,.4);transition:transform .18s;
+    animation:tpulse 2.2s ease-in-out infinite;
+  }
+  .try-btn:hover{transform:translateY(-2px) scale(1.02);}
+  @keyframes tpulse{0%,100%{box-shadow:0 8px 22px rgba(124,92,255,.35)}50%{box-shadow:0 10px 34px rgba(124,92,255,.75)}}
+
+  /* ---------- play mode ---------- */
+  .playbar{display:none;}
+  body.mode-play .config,
+  body.mode-play .summary{display:none;}
+  body.mode-play .playbar{
+    display:flex;align-items:center;justify-content:center;gap:16px;
+    margin-top:18px;animation:fade .4s ease;flex-wrap:wrap;
+  }
+  body.mode-play #caseSvg{width:330px;animation:none;}
+  body.mode-play .stage{padding-bottom:36px;}
+  .pb-back{
+    border:1.5px solid var(--ink);background:#fff;border-radius:999px;
+    padding:12px 22px;font-weight:600;font-size:15px;cursor:pointer;font-family:"Hanken Grotesk";color:var(--ink);transition:.16s;
+  }
+  .pb-back:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+  .pb-count{font-family:"Fredoka";font-weight:500;color:var(--ink-soft);font-size:16px;}
+  .pb-count b{color:var(--accent);font-weight:700;font-size:20px;}
+  .pb-mute{
+    border:1.5px solid var(--line);background:#fff;border-radius:50%;
+    width:46px;height:46px;cursor:pointer;font-size:18px;transition:.16s;
+  }
+  .pb-mute:hover{border-color:var(--ink);}
+
+  /* squishable elements */
+  .sq{transform-box:fill-box;transform-origin:center;cursor:pointer;}
+  .sq:hover{filter:brightness(1.07) saturate(1.06);}
+  .sq.pressed{animation:press .46s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes press{
+    0%{transform:scale(1)}
+    24%{transform:scale(.64,.74)}
+    54%{transform:scale(1.17,1.09)}
+    78%{transform:scale(.95,1.01)}
+    100%{transform:scale(1)}
+  }
+  .ripple{
+    fill:none;stroke:rgba(255,255,255,.92);stroke-width:3;pointer-events:none;
+    transform-box:fill-box;transform-origin:center;animation:rip .5s ease-out forwards;
+  }
+  @keyframes rip{0%{transform:scale(.25);opacity:.85}100%{transform:scale(3.3);opacity:0}}
+
+  @media(max-width:640px){
+    .title h1{font-size:24px;}
+    .step-name{min-width:auto;}
+    .summary{flex-direction:column;align-items:stretch;text-align:center;}
+    .bag{width:100%;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="title">
+      <h1>Custom <b>SquishCase</b> By You</h1>
+      <div class="price"><span id="price">$19.99</span><span class="strike" id="strike" style="display:none">$24.99</span></div>
+    </div>
+    <div class="top-actions">
+      <button class="pill" onclick="share()">⇪ Share</button>
+      <button class="pill solid" onclick="finish()">Finish Editing</button>
+    </div>
+  </header>
+
+  <!-- STAGE -->
+  <section class="stage">
+    <div class="badge"><span class="dot"></span> <span id="badgeTxt">Live Preview</span></div>
+    <div class="preview">
+      <svg id="caseSvg" viewBox="0 0 420 820" xmlns="http://www.w3.org/2000/svg" onclick="squish()"></svg>
+    </div>
+    <div class="view-label" id="viewLabel">Back Panel <b>· squeeze me</b></div>
+  </section>
+
+  <!-- PLAY BAR (squish test mode) -->
+  <section class="playbar">
+    <button class="pb-back" onclick="exitPlay()">‹ Back to design</button>
+    <div class="pb-count">✦ <b id="sqCount">0</b> squishes</div>
+    <button class="pb-mute" id="muteBtn" onclick="toggleMute()" title="sound">🔊</button>
+  </section>
+
+  <!-- CONFIG -->
+  <section class="config">
+    <div class="stepper">
+      <button class="arrow" onclick="step(-1)">‹</button>
+      <div class="step-name">
+        <span class="lbl" id="stepLbl">Squish Texture</span><span class="count" id="stepCount">1 / 5</span>
+        <div class="hint" id="stepHint">Pick the sensory pattern for the back</div>
+      </div>
+      <button class="arrow" onclick="step(1)">›</button>
+    </div>
+
+    <!-- 1 texture -->
+    <div class="panel active" data-panel="0">
+      <div class="tex-grid" id="texGrid"></div>
+    </div>
+
+    <!-- 2 gel color -->
+    <div class="panel" data-panel="1">
+      <div class="swatch-row" id="colorRow"></div>
+      <div class="readout" id="colorName">Bubblegum</div>
+    </div>
+
+    <!-- 3 frame -->
+    <div class="panel" data-panel="2">
+      <div class="swatch-row" id="frameRow"></div>
+      <div class="readout" id="frameName">Clear</div>
+    </div>
+
+    <!-- 4 finish -->
+    <div class="panel" data-panel="3">
+      <div class="seg" id="finishSeg"></div>
+    </div>
+
+    <!-- 5 model -->
+    <div class="panel" data-panel="4">
+      <div class="seg" id="modelSeg"></div>
+      <div class="try-wrap">
+        <button class="try-btn" onclick="enterPlay()">Try it out — squish it ✦ →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUMMARY -->
+  <div class="summary">
+    <div class="recap" id="recap"></div>
+    <button class="bag" onclick="finish()">Add to Bag — <span id="bagPrice">$19.99</span></button>
+  </div>
+
+</div>
+
+<script>
+/* ----------------- DATA ----------------- */
+const TEXTURES = [
+  {id:"orbs",   name:"Orbs"},
+  {id:"dots",   name:"Pop Dots"},
+  {id:"bubbles",name:"Bubbles"},
+  {id:"waves",  name:"Waves"},
+  {id:"ice",    name:"Ice Cubes"},
+];
+const COLORS = [
+  {id:"clear",   name:"Cloud Clear", hex:"#e9eef6", clear:true},
+  {id:"bubble",  name:"Bubblegum",   hex:"#ff8fb1"},
+  {id:"cherry",  name:"Cherry Pop",  hex:"#ff5c7a"},
+  {id:"tang",    name:"Tangerine",   hex:"#ff9a52"},
+  {id:"lemon",   name:"Lemon Drop",  hex:"#ffd45e"},
+  {id:"mint",    name:"Matcha Mint", hex:"#86dca8"},
+  {id:"ocean",   name:"Ocean Blue",  hex:"#4f86ec"},
+  {id:"sky",     name:"Sky",         hex:"#8ec5ff"},
+  {id:"grape",   name:"Grape",       hex:"#a877ef"},
+  {id:"lilac",   name:"Lilac",       hex:"#c9b6f2"},
+  {id:"midnight",name:"Midnight",    hex:"#2f3358"},
+  {id:"confetti",name:"Confetti Mix",hex:"#ff8fb1", confetti:true},
+];
+const CONFETTI = ["#ff8fb1","#ffd45e","#86dca8","#8ec5ff","#a877ef","#ff9a52","#ff5c7a"];
+const FRAMES = [
+  {id:"clear", name:"Clear",      hex:"#ffffff", alpha:0.10},
+  {id:"white", name:"Frost White",hex:"#f3f1ec", alpha:1},
+  {id:"black", name:"Jet Black",  hex:"#23202b", alpha:1},
+  {id:"pink",  name:"Tinted Pink",hex:"#ffd5e2", alpha:0.55},
+  {id:"smoke", name:"Smoke",      hex:"#9a93a8", alpha:0.5},
+];
+const FINISHES = [
+  {id:"glossy",     name:"Glossy",     sub:"high shine"},
+  {id:"matte",      name:"Matte",      sub:"soft touch"},
+  {id:"iridescent", name:"Iridescent", sub:"+$5 · holo"},
+];
+const MODELS = [
+  {id:"iphone", name:"iPhone 16 / 15", cam:"iphone"},
+  {id:"galaxy", name:"Galaxy S24",     cam:"galaxy"},
+  {id:"pixel",  name:"Pixel 9",        cam:"pixel"},
+];
+const STEPS = [
+  {lbl:"Squish Texture", hint:"Pick the sensory pattern for the back"},
+  {lbl:"Gel Color",      hint:"Tint the squishy gel"},
+  {lbl:"Case Frame",     hint:"Choose the protective bumper"},
+  {lbl:"Finish",         hint:"How the gel catches the light"},
+  {lbl:"Phone Model",    hint:"Fit it to your device"},
+];
+
+const state = {texture:"orbs", color:COLORS[1], frame:FRAMES[0], finish:"glossy", model:MODELS[0], step:0, mode:"design"};
+
+/* ----------------- COLOR HELPERS ----------------- */
+function hx(h){h=h.replace('#','');return [parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)];}
+function toHex(r,g,b){return '#'+[r,g,b].map(x=>{x=Math.max(0,Math.min(255,Math.round(x)));return x.toString(16).padStart(2,'0');}).join('');}
+function shade(hex,amt){const[r,g,b]=hx(hex);if(amt>=0)return toHex(r+(255-r)*amt,g+(255-g)*amt,b+(255-b)*amt);const a=1+amt;return toHex(r*a,g*a,b*a);}
+
+/* ----------------- SVG BUILDERS ----------------- */
+let gid=0;
+function gradId(){return 'g'+(gid++);}
+
+// returns {defs, fill} for a 3D squishy blob of given color
+function blobPaint(color, finish, defs){
+  if(finish==='iridescent'){
+    const id=gradId();
+    defs.push(`<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd6ec"/><stop offset="22%" stop-color="#c9b6ff"/>
+      <stop offset="45%" stop-color="#aee9ff"/><stop offset="68%" stop-color="#c7ffe0"/>
+      <stop offset="86%" stop-color="#fff3b0"/><stop offset="100%" stop-color="#ffc9d8"/>
+    </linearGradient>`);
+    return `url(#${id})`;
+  }
+  const id=gradId();
+  const lite = finish==='matte'? shade(color,.30): shade(color,.62);
+  const dark = finish==='matte'? shade(color,-.10): shade(color,-.34);
+  defs.push(`<radialGradient id="${id}" cx="0.34" cy="0.30" r="0.85">
+    <stop offset="0%" stop-color="${lite}"/>
+    <stop offset="42%" stop-color="${color}"/>
+    <stop offset="100%" stop-color="${dark}"/>
+  </radialGradient>`);
+  return `url(#${id})`;
+}
+
+function pickColor(i){
+  if(state.color.confetti) return CONFETTI[i % CONFETTI.length];
+  return state.color.hex;
+}
+
+// generate texture markup inside inner panel rect
+function buildTexture(px,py,pw,ph,inter){
+  const defs=[]; let body='';
+  const t=state.texture, fin=state.finish;
+  const spec = (fin==='matte')?0:1;
+
+  function shine(cx,cy,rx,ry){
+    if(!spec) return '';
+    return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#ffffff" opacity="${fin==='iridescent'?.55:.42}" pointer-events="none"/>`;
+  }
+  function unit(inner,cx,cy){
+    if(!inter) return inner;
+    return `<g class="sq" data-cx="${cx.toFixed(1)}" data-cy="${cy.toFixed(1)}" onclick="zap(this,event)">${inner}</g>`;
+  }
+
+  if(t==='dots'){
+    const cols=7, r=pw/cols/2*0.78, sx=pw/cols, sy=sx*0.96;
+    let i=0;
+    for(let row=0; py+row*sy+sy/2 < py+ph-6; row++){
+      for(let c=0;c<cols;c++){
+        const cx=px+sx*c+sx/2, cy=py+sy*row+sy/2+8;
+        const f=blobPaint(pickColor(i++),fin,defs);
+        const inner=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}"/>`+shine(cx-r*.3,cy-r*.35,r*.4,r*.28);
+        body+=unit(inner,cx,cy);
+      }
+    }
+  }
+  else if(t==='orbs'){
+    const cols=4, r=pw/cols/2*0.84, sx=pw/cols, sy=sx;
+    let i=0;
+    for(let row=0; py+row*sy+sy/2 < py+ph-10; row++){
+      for(let c=0;c<cols;c++){
+        const cx=px+sx*c+sx/2, cy=py+sy*row+sy/2+10;
+        const f=blobPaint(pickColor(i++),fin,defs);
+        const inner=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}"/>`+shine(cx-r*.32,cy-r*.36,r*.42,r*.3);
+        body+=unit(inner,cx,cy);
+      }
+    }
+  }
+  else if(t==='bubbles'){
+    const cols=4, gap=6, size=pw/cols-gap, rr=size*0.42;
+    let i=0;
+    for(let row=0; py+row*(size+gap)+size < py+ph-2; row++){
+      for(let c=0;c<cols;c++){
+        const x=px+c*(size+gap)+gap/2, y=py+row*(size+gap)+gap/2+8;
+        const f=blobPaint(pickColor(i++),fin,defs);
+        const inner=`<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="${rr}" fill="${f}"/>`+shine(x+size*.32,y+size*.3,size*.22,size*.14);
+        body+=unit(inner, x+size/2, y+size/2);
+      }
+    }
+  }
+  else if(t==='waves'){
+    const bands=9, bh=ph/bands;
+    for(let b=0;b<bands;b++){
+      const y=py+b*bh+bh/2+6;
+      const amp=bh*0.32, midY=y;
+      const f=blobPaint(pickColor(b),fin,defs);
+      let d=`M ${px} ${midY}`;
+      const seg=4, segw=pw/seg;
+      for(let s=0;s<seg;s++){
+        const x1=px+s*segw, x2=px+(s+1)*segw, mx=(x1+x2)/2;
+        const dir=(s%2===0)?-1:1;
+        d+=` Q ${mx} ${midY+dir*amp} ${x2} ${midY}`;
+      }
+      let inner=`<path d="${d}" fill="none" stroke="${f}" stroke-width="${bh*0.62}" stroke-linecap="round"/>`;
+      if(spec) inner+=`<path d="${d}" fill="none" stroke="#ffffff" stroke-width="${bh*0.16}" stroke-linecap="round" opacity="${fin==='iridescent'?.5:.35}" transform="translate(0,${-bh*0.16})" pointer-events="none"/>`;
+      body+=unit(inner, px+pw/2, midY);
+    }
+  }
+  else if(t==='ice'){
+    // hand-arranged irregular rounded cubes
+    const cells=[
+      [0.06,0.02,0.5,0.20],[0.60,0.02,0.34,0.13],[0.60,0.17,0.34,0.13],
+      [0.06,0.26,0.40,0.16],[0.50,0.34,0.44,0.13],
+      [0.06,0.46,0.30,0.13],[0.40,0.51,0.24,0.11],[0.68,0.51,0.26,0.13],
+      [0.06,0.62,0.42,0.15],[0.52,0.68,0.42,0.16],
+      [0.06,0.81,0.50,0.15],[0.60,0.86,0.34,0.11],
+    ];
+    cells.forEach((c,i)=>{
+      const x=px+c[0]*pw, y=py+c[1]*ph, w=c[2]*pw, h=c[3]*ph;
+      const f=blobPaint(pickColor(i),fin,defs);
+      let inner=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.min(w,h)*0.3}" fill="${f}"/>`;
+      if(spec) inner+=`<rect x="${x+w*0.12}" y="${y+h*0.14}" width="${w*0.5}" height="${h*0.22}" rx="${h*0.11}" fill="#ffffff" opacity="${fin==='iridescent'?.55:.4}" pointer-events="none"/>`;
+      body+=unit(inner, x+w/2, y+h/2);
+    });
+  }
+  return {defs:defs.join(''), body};
+}
+
+function cameraIsland(model){
+  // top-left island, drawn on top of texture, opaque
+  const x=70, y=72;
+  const lens=(cx,cy,r)=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="#2b2b33"/><circle cx="${cx}" cy="${cy}" r="${r*0.62}" fill="#15151b"/><circle cx="${cx-r*0.3}" cy="${cy-r*0.3}" r="${r*0.22}" fill="#3f5d8a" opacity=".8"/>`;
+  if(model==='galaxy'){
+    let s=`<rect x="${x}" y="${y}" width="74" height="150" rx="34" fill="#1c1c22"/>`;
+    s+=lens(x+37,y+34,15)+lens(x+37,y+75,15)+lens(x+37,y+116,15);
+    return s;
+  }
+  if(model==='pixel'){
+    let s=`<rect x="${x}" y="${y+18}" width="190" height="60" rx="30" fill="#1c1c22"/>`;
+    s+=lens(x+42,y+48,17)+lens(x+96,y+48,17)+`<rect x="${x+135}" y="${y+38}" width="40" height="20" rx="10" fill="#33333d"/>`;
+    return s;
+  }
+  // iphone: rounded square, 3 lenses + flash
+  let s=`<rect x="${x}" y="${y}" width="138" height="138" rx="40" fill="#1c1c22"/>`;
+  s+=lens(x+44,y+44,21)+lens(x+96,y+44,21)+lens(x+44,y+96,21);
+  s+=`<circle cx="${x+96}" cy="${y+96}" r="13" fill="#3a3a44"/><circle cx="${x+96}" cy="${y+96}" r="6" fill="#cfcad6" opacity=".7"/>`;
+  return s;
+}
+
+function renderCase(){
+  gid=0;
+  const svg=document.getElementById('caseSvg');
+  const fr=state.frame;
+  // outer case + inner panel geometry
+  const ox=40,oy=30,ow=340,oh=760,orx=78;
+  const bumper=15;
+  const ix=ox+bumper, iy=oy+bumper, iw=ow-bumper*2, ih=oh-bumper*2, irx=orx-bumper;
+
+  const inter = state.mode==='play';
+  const tex=buildTexture(ix+8, iy+8, iw-16, ih-16, inter);
+
+  // panel backdrop tone (behind gel)
+  const panelTone = state.color.clear ? "#eef2f8" : shade(state.color.hex,.78);
+  const frameFill = fr.alpha<1 ? `${fr.hex}` : fr.hex;
+  const frameOpacity = fr.alpha;
+
+  const defs=`
+    <clipPath id="panelClip"><rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" rx="${irx}"/></clipPath>
+    <linearGradient id="panelBG" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0%" stop-color="${shade(panelTone,.12)}"/>
+      <stop offset="100%" stop-color="${shade(panelTone,-.06)}"/>
+    </linearGradient>
+    <linearGradient id="frameGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${shade(fr.hex,.18)}"/>
+      <stop offset="100%" stop-color="${shade(fr.hex,-.12)}"/>
+    </linearGradient>
+    ${tex.defs}
+  `;
+
+  svg.innerHTML=`
+  <defs>${defs}</defs>
+  <!-- frame / bumper -->
+  <rect x="${ox}" y="${oy}" width="${ow}" height="${oh}" rx="${orx}" fill="url(#frameGrad)" opacity="${frameOpacity}"/>
+  <rect x="${ox}" y="${oy}" width="${ow}" height="${oh}" rx="${orx}" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5" opacity="${Math.max(.3,frameOpacity)}"/>
+  <!-- inner recessed panel -->
+  <rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" rx="${irx}" fill="url(#panelBG)"/>
+  <!-- texture clipped to panel -->
+  <g clip-path="url(#panelClip)">${tex.body}</g>
+  <!-- soft inner shadow ring -->
+  <rect x="${ix}" y="${iy}" width="${iw}" height="${ih}" rx="${irx}" fill="none" stroke="rgba(0,0,0,.10)" stroke-width="2"/>
+  <!-- camera -->
+  ${cameraIsland(state.model.cam)}
+  <!-- wordmark -->
+  <g transform="translate(${ox+ow/2}, ${oy+oh-58})" text-anchor="middle">
+    <text font-family="Fredoka, sans-serif" font-weight="600" font-size="26"
+      fill="${fr.id==='black'?'#fff':(state.color.clear?'#8b8694':'#ffffff')}"
+      opacity="${fr.id==='black'?.95:.92}">SquishCase</text>
+    <text x="78" y="-12" font-size="15" fill="#ffffff" opacity=".85">✦</text>
+  </g>
+  ${inter?'<g id="fx"></g>':''}
+  `;
+}
+
+/* ----------------- UI BUILD ----------------- */
+function texPreviewSVG(id){
+  // mini preview swatch for each texture card (uses a fixed pastel)
+  const c="#a9c8ff", c2="#cdb8ff";
+  if(id==='dots'){let s='';for(let r=0;r<3;r++)for(let i=0;i<5;i++)s+=`<circle cx="${14+i*18}" cy="${16+r*20}" r="6.5" fill="${c}"/>`;return s;}
+  if(id==='orbs'){let s='';for(let r=0;r<2;r++)for(let i=0;i<3;i++)s+=`<circle cx="${20+i*30}" cy="${22+r*30}" r="12" fill="${i%2?c2:c}"/>`;return s;}
+  if(id==='bubbles'){let s='';for(let r=0;r<2;r++)for(let i=0;i<3;i++)s+=`<rect x="${10+i*30}" y="${10+r*30}" width="22" height="22" rx="9" fill="${c}"/>`;return s;}
+  if(id==='waves'){let s='';for(let b=0;b<4;b++)s+=`<path d="M5 ${16+b*16} Q 25 ${8+b*16} 50 ${16+b*16} T 95 ${16+b*16}" stroke="${c}" stroke-width="7" fill="none" stroke-linecap="round"/>`;return s;}
+  if(id==='ice'){return `<rect x="8" y="8" width="34" height="22" rx="6" fill="${c}"/><rect x="48" y="8" width="42" height="14" rx="6" fill="${c2}"/><rect x="8" y="36" width="26" height="20" rx="6" fill="${c2}"/><rect x="40" y="30" width="50" height="26" rx="6" fill="${c}"/>`;}
+  return '';
+}
+function buildTexCards(){
+  const g=document.getElementById('texGrid');
+  g.innerHTML=TEXTURES.map(t=>`
+    <div class="tex-card ${t.id===state.texture?'sel':''}" data-tex="${t.id}" onclick="setTex('${t.id}')">
+      <svg viewBox="0 0 100 64">${texPreviewSVG(t.id)}</svg>
+      <span>${t.name}</span>
+    </div>`).join('');
+}
+function buildColors(){
+  const g=document.getElementById('colorRow');
+  g.innerHTML=COLORS.map(c=>{
+    const bg = c.confetti
+      ? `conic-gradient(${CONFETTI.join(',')})`
+      : (c.clear? 'linear-gradient(135deg,#ffffff,#dfe6f0)' : `radial-gradient(circle at 32% 30%, ${shade(c.hex,.5)}, ${c.hex} 55%, ${shade(c.hex,-.25)})`);
+    return `<div class="swatch ${c.id===state.color.id?'sel':''}" data-col="${c.id}" style="background:${bg}" title="${c.name}" onclick="setColor('${c.id}')"></div>`;
+  }).join('');
+}
+function buildFrames(){
+  const g=document.getElementById('frameRow');
+  g.innerHTML=FRAMES.map(f=>{
+    const bg = f.id==='clear'? 'linear-gradient(135deg,#ffffff,#e4e9f0)' :
+      `radial-gradient(circle at 32% 30%, ${shade(f.hex,.4)}, ${f.hex})`;
+    return `<div class="swatch ${f.id===state.frame.id?'sel':''}" style="background:${bg}" title="${f.name}" onclick="setFrame('${f.id}')"></div>`;
+  }).join('');
+}
+function buildFinish(){
+  document.getElementById('finishSeg').innerHTML=FINISHES.map(f=>`
+    <button class="${f.id===state.finish?'sel':''}" onclick="setFinish('${f.id}')">${f.name}<small>${f.sub}</small></button>`).join('');
+}
+function buildModel(){
+  document.getElementById('modelSeg').innerHTML=MODELS.map(m=>`
+    <button class="${m.id===state.model.id?'sel':''}" onclick="setModel('${m.id}')">${m.name}</button>`).join('');
+}
+
+/* ----------------- ACTIONS ----------------- */
+function setTex(id){state.texture=id;buildTexCards();renderCase();update();squish();}
+function setColor(id){state.color=COLORS.find(c=>c.id===id);buildColors();document.getElementById('colorName').textContent=state.color.name;renderCase();update();squish();}
+function setFrame(id){state.frame=FRAMES.find(f=>f.id===id);buildFrames();document.getElementById('frameName').textContent=state.frame.name;renderCase();update();}
+function setFinish(id){state.finish=id;buildFinish();renderCase();update();}
+function setModel(id){state.model=MODELS.find(m=>m.id===id);buildModel();renderCase();update();}
+
+function step(d){
+  state.step=(state.step+d+STEPS.length)%STEPS.length;
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===state.step));
+  const s=STEPS[state.step];
+  document.getElementById('stepLbl').textContent=s.lbl;
+  document.getElementById('stepHint').textContent=s.hint;
+  document.getElementById('stepCount').textContent=`${state.step+1} / ${STEPS.length}`;
+}
+
+function priceVal(){return state.finish==='iridescent'?24.99:19.99;}
+function update(){
+  const p=priceVal().toFixed(2);
+  document.getElementById('price').textContent='$'+p;
+  document.getElementById('bagPrice').textContent='$'+p;
+  document.getElementById('strike').style.display = state.finish==='iridescent'?'inline':'none';
+  const tex=TEXTURES.find(t=>t.id===state.texture).name;
+  const fin=FINISHES.find(f=>f.id===state.finish).name;
+  document.getElementById('recap').innerHTML=
+    `<b>${tex}</b> texture · <b>${state.color.name}</b> gel · <b>${state.frame.name}</b> frame<br>${fin} finish · ${state.model.name}`;
+}
+
+function squish(){
+  if(state.mode==='play') return; // individual squishes handle their own animation
+  const s=document.getElementById('caseSvg');
+  s.classList.remove('squish');void s.offsetWidth;s.classList.add('squish');
+}
+function share(){
+  const t=`My SquishCase: ${TEXTURES.find(x=>x.id===state.texture).name} / ${state.color.name} / ${state.finish}`;
+  if(navigator.clipboard){navigator.clipboard.writeText(t);}
+  alert("Design copied to share!\n\n"+t);
+}
+function finish(){
+  alert(`Added to bag 🛍️\n\n${document.getElementById('recap').innerText}\nTotal: $${priceVal().toFixed(2)}`);
+}
+
+/* ----------------- PLAY / SQUISH MODE ----------------- */
+let sqCount=0, muted=false, actx=null;
+
+function enterPlay(){
+  state.mode='play';
+  document.body.classList.add('mode-play');
+  document.getElementById('badgeTxt').textContent='Squish Test';
+  document.getElementById('viewLabel').innerHTML='Tap each squish ✦ <b>squeeze them all!</b>';
+  sqCount=0; document.getElementById('sqCount').textContent='0';
+  renderCase();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function exitPlay(){
+  state.mode='design';
+  document.body.classList.remove('mode-play');
+  document.getElementById('badgeTxt').textContent='Live Preview';
+  document.getElementById('viewLabel').innerHTML='Back Panel <b>· squeeze me</b>';
+  renderCase();
+}
+
+function zap(el,e){
+  if(e) e.stopPropagation();
+  el.classList.remove('pressed');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('pressed')));
+  el.addEventListener('animationend',()=>el.classList.remove('pressed'),{once:true});
+  ripple(el.dataset.cx, el.dataset.cy);
+  pop();
+  sqCount++; document.getElementById('sqCount').textContent=sqCount;
+}
+
+function ripple(cx,cy){
+  const fx=document.getElementById('fx'); if(!fx) return;
+  const NS='http://www.w3.org/2000/svg';
+  const c=document.createElementNS(NS,'circle');
+  c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',16);
+  c.setAttribute('class','ripple');
+  fx.appendChild(c);
+  setTimeout(()=>c.remove(),520);
+}
+
+function toggleMute(){
+  muted=!muted;
+  document.getElementById('muteBtn').textContent = muted?'🔇':'🔊';
+}
+function pop(){
+  if(muted) return;
+  try{
+    if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended') actx.resume();
+    const t=actx.currentTime;
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type='sine';
+    const f=200+Math.random()*170;
+    o.frequency.setValueAtTime(f*2.7, t);
+    o.frequency.exponentialRampToValueAtTime(f, t+0.11);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.22, t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.17);
+    o.connect(g).connect(actx.destination);
+    o.start(t); o.stop(t+0.2);
+  }catch(err){}
+}
+
+/* ----------------- INIT ----------------- */
+buildTexCards();buildColors();buildFrames();buildFinish();buildModel();
+renderCase();update();
+</script>
+</body>
+</html>
